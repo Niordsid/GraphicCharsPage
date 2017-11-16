@@ -95,9 +95,8 @@ var findEmotionIndexInSeries = function(series, emotion) {
 
 var putObservationDataInEmotion = function(current_observation_count, data, emotion_index, series) {
 
-  let current_data = series[emotion_index].data;
-
-  if (current_data == current_observation_count - 1) {
+  let current_data = series[emotion_index].data;  
+  if (current_data.length == current_observation_count - 1) {
     series[emotion_index].data.push(data);
   } else {
     for (let i = series[emotion_index].data.length; i < current_observation_count - 1; i++) {
@@ -126,35 +125,37 @@ var buildSeriesData = function(observations_data) {
   let series = [];
   let observation_keys = Object.keys(observations_data);
 
-  for (let i = 0; i < observation_keys.length; i++) {
-    let emotion_keys = Object.keys(observations_data[observation_keys[i]]);
+  for (let observation_count = 0; observation_count < observation_keys.length; observation_count++) {
+    let emotion_keys = Object.keys(observations_data[observation_keys[observation_count]]);
 
-    for (let j = 0; j < emotion_keys.length; j++) {
-      let emotion_index = findEmotionIndexInSeries(series, emotion_keys[j]);
+    for (let emotion_count = 0; emotion_count < emotion_keys.length; emotion_count++) {
+      let emotion_index = findEmotionIndexInSeries(series, emotion_keys[emotion_count]);
 
       if (emotion_index !== NOT_FOUND) {
-
         series = putObservationDataInEmotion(
-          i,
-          parseFloat(observations_data[observation_keys[i][emotion_keys[j]]]),
+          observation_count,
+          parseFloat(observations_data[observation_keys[observation_count]][emotion_keys[emotion_count]]),
           emotion_index,
           series
         );
 
       } else {
         series.push({
-          name: emotion_keys[j],
+          name: emotion_keys[emotion_count],
           data: []
         });
 
         let current_emotion_index = series.length - 1;
 
-        for (let k = 0; k <= i; k++) {
-          if (k === i) {
-            series[current_emotion_index].data[k] = parseFloat(observations_data[observation_keys[i]][emotion_keys[j]]);
+        for (let emotion_data_filler_count = 0; emotion_data_filler_count <= observation_count; emotion_data_filler_count++) {
+          let is_the_first_observation = emotion_data_filler_count === observation_count;
+
+          if (is_the_first_observation) {
+            series[current_emotion_index].data[emotion_data_filler_count] = parseFloat(observations_data[observation_keys[observation_count]][emotion_keys[emotion_count]]);
           } else {
-            series[current_emotion_index].data[k] = 0;
+            series[current_emotion_index].data[emotion_data_filler_count] = 0;
           }
+
         }
 
       }
@@ -233,6 +234,7 @@ var plotGraphic = function() {
     if (selected_session) {
 
       getGraphicData(selected_student, selected_session, function(_series) {
+
         if (chart) {
           chart.destroy();
         }
@@ -240,7 +242,7 @@ var plotGraphic = function() {
         chart = new Highcharts.chart('container', {
 
           title: {
-            text: 'Student "X"/Session "' + selected_session + '"'
+            text: 'Student "X"/ Session "' + selected_session + '"'
           },
 
           subtitle: {
