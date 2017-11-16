@@ -6,6 +6,7 @@ var students = [];
 var sessions = [];
 
 var selected_student = null;
+var student_name = null;
 var selected_session = null;
 
 var chart = null;
@@ -188,21 +189,42 @@ var getGraphicData = function(student, session, callback) {
 
 };
 
-
-var getGraphicData2 = function(student, callback){
+var getStudentsEmotions = function(student, callback) {
   $.ajax({
       url: "https://api.arca.acacia.red/plot/student/Emotion",
       method: 'POST',
       beforeSend: function(xhr) {
         xhr.setRequestHeader("Content-Type", "application/json");
       },
-      data: [student],    
+      data: JSON.stringify([student]),
       dataType: "json"
     })
-    .done(callback)
+    .done(function(observations) {
+      console.log(observations);
+    })
     .fail(function(error) {
       console.error('Error', error);
     });
+};
+
+
+var getSessionsEmotions = function(session, callback) {
+  $.ajax({
+      url: "https://api.arca.acacia.red/plot/session/Emotion",
+      method: 'POST',
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader("Content-Type", "application/json");
+      },
+      data: JSON.stringify([session]),
+      dataType: "json"
+    })
+    .done(function(observations) {
+      console.log(observations);
+    })
+    .fail(function(error) {
+      console.error('Error', error);
+    });
+
 };
 
 var plotGraphic = function() {
@@ -218,7 +240,7 @@ var plotGraphic = function() {
         chart = new Highcharts.chart('container', {
 
           title: {
-            text: 'Student "X"/Session "Y"'
+            text: 'Student "X"/Session "' + selected_session + '"'
           },
 
           subtitle: {
