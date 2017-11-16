@@ -91,6 +91,7 @@ var findEmotionIndexInSeries = function(series, emotion) {
 
 }
 
+
 var putObservationDataInEmotion = function(current_observation_count, data, emotion_index, series) {
 
   let current_data = series[emotion_index].data;
@@ -185,6 +186,23 @@ var getGraphicData = function(student, session, callback) {
       console.error('Error', error);
     });
 
+};
+
+
+var getGraphicData2 = function(student, callback){
+  $.ajax({
+      url: "https://api.arca.acacia.red/plot/student/Emotion",
+      method: 'POST',
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader("Content-Type", "application/json");
+      },
+      data: [student],    
+      dataType: "json"
+    })
+    .done(callback)
+    .fail(function(error) {
+      console.error('Error', error);
+    });
 };
 
 var plotGraphic = function() {
