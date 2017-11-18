@@ -6,9 +6,13 @@
   margin: 0 auto
 }
 
+.section {
+  height: 100vh;
+}
+
 .grapone {
   padding-top: 40px;
-	border-bottom: 0.5px solid #D8D8D8;
+  border-bottom: 0.5px solid #D8D8D8;
 }
 
 .control-label {
@@ -16,9 +20,8 @@
   color: #6E6E6E;
   border-bottom: 1px solid #BDBDBD;
   padding-bottom: 5px;
-
 }
 
 .plotgraph {
-	padding-top: 15px;
+  padding-top: 15px;
 }
