@@ -11,7 +11,9 @@ var student_name = null;
 var selected_session = null;
 var selected_sessionb = null;
 
-var chart = null;
+var charta = null;
+var chartb = null;
+var chartc = null;
 
 //------------------------------------------------------
 //  CONSTANTS
@@ -122,7 +124,6 @@ var findEmotionIndexInSeries = function(series, emotion) {
 
 }
 
-
 var putObservationDataInEmotion = function(current_observation_count, data, emotion_index, series) {
 
   let current_data = series[emotion_index].data;
@@ -231,7 +232,7 @@ var getStudentsEmotions = function(student, callback) {
       dataType: "json"
     })
     .done(function(observations) {
-      console.log(observations);
+      callback(buildSeriesData(observations));
     })
     .fail(function(error) {
       console.error('Error', error);
@@ -250,7 +251,7 @@ var getSessionsEmotions = function(session, callback) {
       dataType: "json"
     })
     .done(function(observations) {
-      console.log(observations);
+      callback(buildSeriesData(observations));
     })
     .fail(function(error) {
       console.error('Error', error);
@@ -265,11 +266,11 @@ var plotGraphic = function() {
 
       getGraphicData(selected_student, selected_session, function(_series) {
 
-        if (chart) {
-          chart.destroy();
+        if (charta) {
+          charta.destroy();
         }
 
-        chart = new Highcharts.chart('container', {
+        charta = new Highcharts.chart('container', {
 
           title: {
             text: 'Student "X"/ Session "' + selected_session + '"'
@@ -334,6 +335,161 @@ var plotGraphic = function() {
   }
 };
 
+var plotGraphic2 = function() {
+
+  if (selected_studentb) {
+    getStudentsEmotions(selected_student, function(_series) {
+
+      if (chartb) {
+        chartb.destroy();
+      }
+
+      chartb = new Highcharts.chart('container2', {
+
+        title: {
+          text: 'Student "X"/ Session "' + selected_session + '"'
+        },
+
+        subtitle: {
+          text: 'Student Emotions During The Session'
+        },
+
+        yAxis: {
+          title: {
+            text: 'EMOTION VALUE'
+          }
+        },
+
+        xAxis: {
+          title: {
+            text: 'OBSERVATIONS (OVER THE DURATION OF THE CLASS)'
+          }
+        },
+
+        legend: {
+          layout: 'vertical',
+          align: 'right',
+          verticalAlign: 'middle'
+        },
+
+        plotOptions: {
+          series: {
+            label: {
+              connectorAllowed: false
+            },
+            pointStart: 1
+          }
+        },
+
+        series: _series,
+
+        responsive: {
+          rules: [{
+            condition: {
+              maxWidth: 500
+            },
+            chartOptions: {
+              legend: {
+                layout: 'horizontal',
+                align: 'center',
+                verticalAlign: 'bottom'
+              }
+            }
+          }]
+        }
+
+      });
+    });
+
+
+  } else {
+    alert('Please select a Student');
+  }
+};
+
+var plotGraphic3 = function() {
+
+  if (selected_sessionb) {
+    getSessionsEmotions(selected_sessionb, function(_series) {
+
+      if (chartc) {
+        chartc.destroy();
+      }
+
+      chartc = new Highcharts.chart('container3', {
+
+        chart: {
+          type: 'column'
+        },
+        title: {
+          text: 'Monthly Average Rainfall'
+        },
+        subtitle: {
+          text: 'Source: WorldClimate.com'
+        },
+        xAxis: {
+          categories: [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec'
+          ],
+          crosshair: true
+        },
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Rainfall (mm)'
+          }
+        },
+        tooltip: {
+          headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+          footerFormat: '</table>',
+          shared: true,
+          useHTML: true
+        },
+        plotOptions: {
+          column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+          }
+        },
+        series: [{
+          name: 'Tokyo',
+          data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+
+        }, {
+          name: 'New York',
+          data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+
+        }, {
+          name: 'London',
+          data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+
+        }, {
+          name: 'Berlin',
+          data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+
+        }]
+
+      });
+    });
+
+
+  } else {
+    alert('Please select a Student');
+  }
+};
 //------------------------------------------------------
 //  DOCUMENT READY
 //------------------------------------------------------
@@ -349,8 +505,8 @@ $(document).ready(function() {
     $('#plotGraphicBtn').prop('disabled', true);
 
     $('#session').html('<option value="">Choose Session</option>');
-    if (chart) {
-      chart.destroy();
+    if (charta) {
+      charta.destroy();
     }
 
     if (selected_student) {
@@ -372,9 +528,9 @@ $(document).ready(function() {
   $('#session').change(function() {
     selected_session = $(this).val() !== "" ? $(this).val() : null;
 
-    if (chart) {
-      chart.destroy();
-      chart = null;
+    if (charta) {
+      charta.destroy();
+      charta = null;
     }
 
 
@@ -390,9 +546,9 @@ $(document).ready(function() {
   $('#student2').change(function() {
     selected_studentb = $(this).val() !== "" ? $(this).val() : null;
 
-    if (chart) {
-      chart.destroy();
-      chart = null;
+    if (chartb) {
+      chartb.destroy();
+      chartb = null;
     }
 
     if (selected_studentb) {
@@ -406,9 +562,9 @@ $(document).ready(function() {
   $('#session2').change(function() {
     selected_sessionb = $(this).val() !== "" ? $(this).val() : null;
 
-    if (chart) {
-      chart.destroy();
-      chart = null;
+    if (chartc) {
+      chartc.destroy();
+      chartc = null;
     }
 
     if (selected_sessionb) {
