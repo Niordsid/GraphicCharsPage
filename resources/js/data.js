@@ -6,8 +6,10 @@ var students = [];
 var sessions = [];
 
 var selected_student = null;
+var selected_studentb = null;
 var student_name = null;
 var selected_session = null;
+var selected_sessionb = null;
 
 var chart = null;
 
@@ -23,16 +25,35 @@ const NOT_FOUND = -1;
 var initialize = function() {
   $('#session').prop('disabled', true);
   $('#plotGraphicBtn').prop('disabled', true);
+  $('#plotGraphicBtn2').prop('disabled', true);
+  $('#plotGraphicBtn3').prop('disabled', true);
 
   getListStudents(function(_students) {
     students = _students;
     renderStudents();
+  });
+
+  getSessions(function(_sessions) {
+    sessions = _sessions;
+    renderSessions();
   });
 };
 
 var getListStudents = function(callback) {
   $.ajax({
       url: "https://api.arca.acacia.red/list/Student",
+      method: 'GET',
+      dataType: "json"
+    })
+    .done(callback)
+    .fail(function(error) {
+      console.error('Error', error);
+    });
+};
+
+var getSessions = function(callback) {
+  $.ajax({
+      url: "http://api.arca.acacia.red/list/Session",
       method: 'GET',
       dataType: "json"
     })
@@ -65,7 +86,16 @@ var renderStudents = function() {
   }
 
   $('#student').append(html);
+  $('#student2').append(html);
 
+}
+
+var renderSessions = function() {
+  let html = "";
+  for (let i = 0; i < sessions.length; i++) {
+    html += '<option value="' + sessions[i]['Session'] + '">' + sessions[i]['Session'] + "</option>";
+  }
+  $('#session2').append(html);
 }
 
 var renderSession = function() {
@@ -95,7 +125,7 @@ var findEmotionIndexInSeries = function(series, emotion) {
 
 var putObservationDataInEmotion = function(current_observation_count, data, emotion_index, series) {
 
-  let current_data = series[emotion_index].data;  
+  let current_data = series[emotion_index].data;
   if (current_data.length == current_observation_count - 1) {
     series[emotion_index].data.push(data);
   } else {
@@ -353,6 +383,38 @@ $(document).ready(function() {
       $('#plotGraphicBtn').prop('disabled', false);
     } else {
       $('#plotGraphicBtn').prop('disabled', true);
+    }
+
+  });
+  // Active button for plot second Graphic
+  $('#student2').change(function() {
+    selected_studentb = $(this).val() !== "" ? $(this).val() : null;
+
+    if (chart) {
+      chart.destroy();
+      chart = null;
+    }
+
+    if (selected_studentb) {
+      $('#plotGraphicBtn2').prop('disabled', false);
+    } else {
+      $('#plotGraphicBtn2').prop('disabled', true);
+    }
+
+  });
+  // Active button for plot third Graphic
+  $('#session2').change(function() {
+    selected_sessionb = $(this).val() !== "" ? $(this).val() : null;
+
+    if (chart) {
+      chart.destroy();
+      chart = null;
+    }
+
+    if (selected_sessionb) {
+      $('#plotGraphicBtn3').prop('disabled', false);
+    } else {
+      $('#plotGraphicBtn3').prop('disabled', true);
     }
 
   });
