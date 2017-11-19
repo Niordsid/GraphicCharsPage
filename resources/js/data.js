@@ -15,6 +15,8 @@ var charta = null;
 var chartb = null;
 var chartc = null;
 
+var categories = [];
+
 //------------------------------------------------------
 //  CONSTANTS
 //------------------------------------------------------
@@ -199,6 +201,12 @@ var buildSeriesData = function(observations_data) {
   return series;
 }
 
+var listCategories = function(observations_data){
+  let data1 = observations_data
+
+    console.log(Object.keys(data1)[0]);
+
+}
 var getGraphicData = function(student, session, callback) {
   $.ajax({
       url: "https://api.arca.acacia.red/plot/student_session/Emotion",
@@ -238,7 +246,6 @@ var getStudentsEmotions = function(student, callback) {
       console.error('Error', error);
     });
 };
-
 
 var getSessionsEmotions = function(session, callback) {
   $.ajax({
@@ -338,8 +345,7 @@ var plotGraphic = function() {
 var plotGraphic2 = function() {
 
   if (selected_studentb) {
-    getStudentsEmotions(selected_student, function(_series) {
-
+    getStudentsEmotions(selected_studentb, function(_series) {
       if (chartb) {
         chartb.destroy();
       }
@@ -347,22 +353,22 @@ var plotGraphic2 = function() {
       chartb = new Highcharts.chart('container2', {
 
         title: {
-          text: 'Student "X"/ Session "' + selected_session + '"'
+          text: 'Student "X"'
         },
 
         subtitle: {
-          text: 'Student Emotions During The Session'
+          text: 'Emotions over the Sessions'
         },
 
         yAxis: {
           title: {
-            text: 'EMOTION VALUE'
+            text: 'EMOTIONS VALUES'
           }
         },
 
         xAxis: {
           title: {
-            text: 'OBSERVATIONS (OVER THE DURATION OF THE CLASS)'
+            text: 'SESSIONS'
           }
         },
 
@@ -411,7 +417,6 @@ var plotGraphic3 = function() {
 
   if (selected_sessionb) {
     getSessionsEmotions(selected_sessionb, function(_series) {
-
       if (chartc) {
         chartc.destroy();
       }
@@ -422,38 +427,31 @@ var plotGraphic3 = function() {
           type: 'column'
         },
         title: {
-          text: 'Monthly Average Rainfall'
+          text: '"' + selected_sessionb + '"'
         },
         subtitle: {
-          text: 'Source: WorldClimate.com'
+          text: "Student's Emotions Average Values"
         },
         xAxis: {
           categories: [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec'
+            ' ',
+            ' '
           ],
-          crosshair: true
+          crosshair: true,
+          title:{
+            text: 'Students / Emotions'
+          }
         },
         yAxis: {
           min: 0,
           title: {
-            text: 'Rainfall (mm)'
+            text: 'Emotion Values'
           }
         },
         tooltip: {
           headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
           pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-            '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+            '<td style="padding:0"><b>{point.y:.3f}</b></td></tr>',
           footerFormat: '</table>',
           shared: true,
           useHTML: true
@@ -464,23 +462,7 @@ var plotGraphic3 = function() {
             borderWidth: 0
           }
         },
-        series: [{
-          name: 'Tokyo',
-          data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
-
-        }, {
-          name: 'New York',
-          data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
-
-        }, {
-          name: 'London',
-          data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
-
-        }, {
-          name: 'Berlin',
-          data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
-
-        }]
+        series: _series
 
       });
     });
