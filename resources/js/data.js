@@ -15,7 +15,7 @@ var charta = null;
 var chartb = null;
 var chartc = null;
 
-var categories = [];
+var name_key = [];
 
 //------------------------------------------------------
 //  CONSTANTS
@@ -158,6 +158,7 @@ var buildSeriesData = function(observations_data) {
   let series = [];
   let observation_keys = Object.keys(observations_data);
 
+
   for (let observation_count = 0; observation_count < observation_keys.length; observation_count++) {
     let emotion_keys = Object.keys(observations_data[observation_keys[observation_count]]);
 
@@ -197,16 +198,17 @@ var buildSeriesData = function(observations_data) {
   }
 
   series = fillMissingSeriesData(series, observation_keys.length);
+  name_key = listkeysName(observations_data);
 
   return series;
 }
 
-var listCategories = function(observations_data){
-  let data1 = observations_data
-
-    console.log(Object.keys(data1)[0]);
-
+var listkeysName = function(observations_data) {
+  let data1 = observations_data;
+  let ori = Object.keys(data1);
+  return ori;
 }
+
 var getGraphicData = function(student, session, callback) {
   $.ajax({
       url: "https://api.arca.acacia.red/plot/student_session/Emotion",
@@ -349,7 +351,6 @@ var plotGraphic2 = function() {
       if (chartb) {
         chartb.destroy();
       }
-
       chartb = new Highcharts.chart('container2', {
 
         title: {
@@ -367,6 +368,7 @@ var plotGraphic2 = function() {
         },
 
         xAxis: {
+          categories: name_key,
           title: {
             text: 'SESSIONS'
           }
@@ -383,7 +385,7 @@ var plotGraphic2 = function() {
             label: {
               connectorAllowed: false
             },
-            pointStart: 1
+            pointStart: 0
           }
         },
 
@@ -420,7 +422,6 @@ var plotGraphic3 = function() {
       if (chartc) {
         chartc.destroy();
       }
-
       chartc = new Highcharts.chart('container3', {
 
         chart: {
@@ -433,12 +434,9 @@ var plotGraphic3 = function() {
           text: "Student's Emotions Average Values"
         },
         xAxis: {
-          categories: [
-            ' ',
-            ' '
-          ],
+          categories: name_key,
           crosshair: true,
-          title:{
+          title: {
             text: 'Students / Emotions'
           }
         },
