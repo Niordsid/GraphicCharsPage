@@ -206,7 +206,14 @@ var buildSeriesData = function(observations_data) {
 var listkeysName = function(observations_data) {
   let data1 = observations_data;
   let ori = Object.keys(data1);
-  return ori;
+  let names = [];
+
+  for(let i = 0; i < ori.length; i ++){
+    let name = ori[i].substring(0,7);
+    names.push(name+"_"+(i+1));
+
+  }
+  return names;
 }
 
 var getGraphicData = function(student, session, callback) {
