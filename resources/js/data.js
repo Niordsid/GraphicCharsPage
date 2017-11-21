@@ -301,7 +301,7 @@ var plotGraphic = function() {
         charta = new Highcharts.chart('container', {
 
           title: {
-            text: '' + stud + ' / ' + selected_session + '"'
+            text: '' + stud + ' / ' + selected_session + ''
           },
 
           subtitle: {
@@ -458,7 +458,7 @@ var plotGraphic3 = function() {
           type: 'column'
         },
         title: {
-          text: '"' + selected_sessionb + '"'
+          text: '' + selected_sessionb + ''
         },
         subtitle: {
           text: "Student's Emotions Average Values"
