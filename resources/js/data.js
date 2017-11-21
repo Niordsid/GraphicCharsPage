@@ -516,7 +516,8 @@ $(document).ready(function() {
 
     $('#session').html('<option value="">Choose Session</option>');
     if (charta) {
-      charta.destroy();
+      charta = null;
+      //charta.destroy();
     }
 
     if (selected_student) {
