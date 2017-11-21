@@ -208,12 +208,24 @@ var listkeysName = function(observations_data) {
   let ori = Object.keys(data1);
   let names = [];
 
-  for(let i = 0; i < ori.length; i ++){
-    let name = ori[i].substring(0,7);
-    names.push(name+"_"+(i+1));
+  for (let i = 0; i < ori.length; i++) {
+    let name = ori[i].substring(0, 7);
+    names.push(name + "_" + (i + 1));
 
   }
+  return ori;
+}
+
+var sessionname = function(name) {
+  let sess = name;
+  let names = [];
+
+  for (let i = 0; i < sess.length; i++) {
+    let name = sess[i].substring(8, sess[i].length);
+    names.push(name);
+  }
   return names;
+  console.log(names);
 }
 
 var getGraphicData = function(student, session, callback) {
@@ -297,6 +309,7 @@ var plotGraphic = function() {
           },
 
           yAxis: {
+            max: 1,
             title: {
               text: 'EMOTION VALUE'
             }
@@ -355,9 +368,11 @@ var plotGraphic2 = function() {
 
   if (selected_studentb) {
     getStudentsEmotions(selected_studentb, function(_series) {
+      let data2 = sessionname(name_key);
       if (chartb) {
         chartb.destroy();
       }
+
       chartb = new Highcharts.chart('container2', {
 
         title: {
@@ -369,13 +384,14 @@ var plotGraphic2 = function() {
         },
 
         yAxis: {
+          max: 1,
           title: {
             text: 'EMOTIONS VALUES'
           }
         },
 
         xAxis: {
-          categories: name_key,
+          categories: data2,
           title: {
             text: 'SESSIONS'
           }
@@ -448,6 +464,7 @@ var plotGraphic3 = function() {
           }
         },
         yAxis: {
+          max: 1,
           min: 0,
           title: {
             text: 'Emotion Values'
