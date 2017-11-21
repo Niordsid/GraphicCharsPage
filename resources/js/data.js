@@ -288,7 +288,7 @@ var getSessionsEmotions = function(session, callback) {
 };
 
 var plotGraphic = function() {
-
+  let stud = getName(students, 'Student', selected_student);
   if (selected_student) {
     if (selected_session) {
 
@@ -301,7 +301,7 @@ var plotGraphic = function() {
         charta = new Highcharts.chart('container', {
 
           title: {
-            text: ''+selected_student+' / ' + selected_session + '"'
+            text: '' + stud + ' / ' + selected_session + '"'
           },
 
           subtitle: {
@@ -367,6 +367,7 @@ var plotGraphic = function() {
 var plotGraphic2 = function() {
 
   if (selected_studentb) {
+    let stud = getName(students, 'Student', selected_studentb);
     getStudentsEmotions(selected_studentb, function(_series) {
       let data2 = sessionname(name_key);
       if (chartb) {
@@ -376,7 +377,7 @@ var plotGraphic2 = function() {
       chartb = new Highcharts.chart('container2', {
 
         title: {
-          text: ''+selected_studentb+''
+          text: '' + stud + ''
         },
 
         subtitle: {
@@ -500,6 +501,16 @@ var plotGraphic3 = function() {
     alert('Please select a Student');
   }
 };
+
+var getName = function(array, key, value) {
+  let name = null;
+  for (var i = 0; i < array.length; i++) {
+    if (array[i][key] === value) {
+      return array[i]['Name'];
+    }
+  }
+  return null;
+}
 //------------------------------------------------------
 //  DOCUMENT READY
 //------------------------------------------------------
@@ -511,6 +522,8 @@ $(document).ready(function() {
 
   $('#student').change(function() {
     selected_student = $(this).val() !== "" ? $(this).val() : null;
+
+
     $('#session').prop('disabled', true);
     $('#plotGraphicBtn').prop('disabled', true);
 
