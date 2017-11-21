@@ -301,7 +301,7 @@ var plotGraphic = function() {
         charta = new Highcharts.chart('container', {
 
           title: {
-            text: 'Student "X"/ Session "' + selected_session + '"'
+            text: ''+selected_student+' / ' + selected_session + '"'
           },
 
           subtitle: {
@@ -376,7 +376,7 @@ var plotGraphic2 = function() {
       chartb = new Highcharts.chart('container2', {
 
         title: {
-          text: 'Student "X"'
+          text: ''+selected_studentb+''
         },
 
         subtitle: {
@@ -394,7 +394,13 @@ var plotGraphic2 = function() {
           categories: data2,
           title: {
             text: 'SESSIONS'
+          },
+          labels: {
+            style: {
+              fontSize: '9px'
+            }
           }
+
         },
 
         legend: {
