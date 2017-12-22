@@ -57,7 +57,7 @@ var getListStudents = function(callback) {
 
 var getSessions = function(callback) {
   $.ajax({
-      url: "http://api.arca.acacia.red/list/Session",
+      url: "https://api.arca.acacia.red/list/Session",
       method: 'GET',
       dataType: "json"
     })
