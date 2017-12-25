@@ -10,6 +10,7 @@ var teachers = [];
 var selected_student = null;
 var selected_session = null;
 
+var duration = null;
 
 
 var initialize = function() {
@@ -24,6 +25,7 @@ var initialize = function() {
     teachers = _teachers;
     renderTeachers();
   });
+
 
 };
 
@@ -56,7 +58,7 @@ var getListSessions = function(student_id, callback) {
     });
 };
 
-var getListTeachers = function(callback){
+var getListTeachers = function(callback) {
   $.ajax({
       url: "https://api.arca.acacia.red/list/Teacher",
       method: 'GET',
@@ -87,7 +89,7 @@ var renderSession = function() {
   $('#session').html(html);
 }
 
-var renderTeachers = function(){
+var renderTeachers = function() {
   let html = "";
   for (let i = 0; i < teacher.length; i++) {
     html += '<option value="' + teachers[i]['Teacher'] + '">' + teachers[i]['Name'] + "</option>";
@@ -101,7 +103,9 @@ var renderTeachers = function(){
 //  DOCUMENT READY
 //------------------------------------------------------
 $(document).ready(function() {
-
+  $('input.timepicker').timepicker({
+    timeFormat: 'HH:mm:ss'
+  });
   //------------------------------------------------------
   //  EVENTS
   //------------------------------------------------------
@@ -126,7 +130,9 @@ $(document).ready(function() {
     }
 
   });
-  //------------------------------------------------------
+
+
+  //-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
   //  INITIALIZATION
   //------------------------------------------------------
   initialize();
