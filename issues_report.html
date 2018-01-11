@@ -10,6 +10,7 @@
   <script src="resources/js/rest2.js"></script>
   <script src="resources/js/websocket.js"></script>
 
+  <!-- highcharts dependencies-->
   <script src="resources/libraries/Highcharts-6.0.2/code/highcharts.js"></script>
   <script src="resources/libraries/Highcharts-6.0.2/code/modules/series-label.js"></script>
   <script src="resources/libraries/Highcharts-6.0.2/code/modules/exporting.js"></script>
@@ -17,11 +18,17 @@
   <!--Import Google Icon Font-->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
-  <!--Import materialize.css-->
-  <link type="text/css" rel="stylesheet" href="resources/css/bootstrap/bootstrap.min.css" media="screen,projection" />
   <link type="text/css" rel="stylesheet" href="resources/css/style.css" />
+  <!--Import Bootstrap dependencies-->
+  <link type="text/css" rel="stylesheet" href="resources/css/bootstrap/bootstrap.min.css" media="screen,projection" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="resources/js/bootstrap/bootstrap-multiselect.js"></script>
+  <link rel="stylesheet" href="resources/css/bootstrap/bootstrap-multiselect.css" type="text/css"/>
+  <!--Import Timepicker plugin.css-->
   <link type="text/css" rel="stylesheet" href="resources/css/timepicker/jquery.timepicker.min.css" />
   <script src="resources/js/timepicker/jquery.timepicker.min.js"></script>
+  <!--Import Logic-->
   <script src="resources/js/issues_report/data.js"></script>
 
 </head>
@@ -40,15 +47,14 @@
             </div>
             <div class="form-group col-md-6">
               <label class="control-label">Session</label>
-              <select id="session" class="form-control" name="">
-                    <option value="">Choose Session</option>
-                  </select>
+              <select id="session" class="form-control" multiple="multiple">                    
+              </select>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group col-md-6">
               <label class="control-label">Duration</label>
-              <input type="text" class="timepicker form-control" name="" placeholder="Select the Time"/>
+              <input type="text" class="timepicker form-control" name="" placeholder="Select the Time" />
             </div>
             <div class="form-group col-md-6">
               <label class="control-label">Teacher</label>

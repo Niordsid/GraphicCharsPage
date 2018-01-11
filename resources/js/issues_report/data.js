@@ -14,7 +14,7 @@ var duration = null;
 
 
 var initialize = function() {
-  $('#session').prop('disabled', true);
+  $('.btn-group').prop('disable', true);
 
   getListStudents(function(_students) {
     students = _students;
@@ -80,15 +80,6 @@ var renderStudents = function() {
 
 }
 
-var renderSession = function() {
-  let html = '<option value="">Choose Session</option>';
-  for (let i = 0; i < sessions.length; i++) {
-    html += '<option value="' + sessions[i]['Session'] + '">' + sessions[i]['Session'] + "</option>";
-  }
-
-  $('#session').html(html);
-}
-
 var renderTeachers = function() {
   let html = "";
   for (let i = 0; i < teacher.length; i++) {
@@ -113,24 +104,33 @@ $(document).ready(function() {
   $('#student').change(function() {
     selected_student = $(this).val() !== "" ? $(this).val() : null;
     $('#session').prop('disabled', true);
-    $('#session').html('<option value="">Choose Session</option>');
-
 
     if (selected_student) {
       getListSessions(selected_student, function(_sessions) {
-
-        if (_sessions.length) {
-          sessions = _sessions;
-          $('#session').prop('disabled', false);
-          renderSession();
-        }
-
-
+        let html = ''
+        $.each(_sessions, function(i, item) {
+          let session = item.Session
+          html += '<option value="' + session + '">' + session + '</option>';
+        });
+        $('#session').html(html);
+        $('#session').val(_sessions[0].Session);
+        $('#session').multiselect('rebuild');
       });
+      $('#session').trigger('change');
+
+    } else {
+      $('#session').html('');
+      $('#session').multiselect('rebuild');
     }
 
   });
 
+  $('#session').multiselect({
+    maxHeight: 400,
+    buttonWidth: '100%',
+    includeSelectAllOption: true,
+    enableFiltering: true
+  });
 
   //-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
   //  INITIALIZATION
