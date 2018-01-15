@@ -99,7 +99,6 @@ var renderTeachers = function() {
 
 var renderIssues = function() {
   var Content = document.getElementById('issues-list');
-  //console.log(issues);
   for (let i = 0; i < issues.length; i++) {
     DynamicContent(Content, i);
   }
@@ -143,7 +142,9 @@ var submitData = function() {
     let value = $("#" + data[i].id).val();
     if (value != "0") {
       value_issues[data[i].id] = value
-    } else {}
+    } else {
+
+    }
 
   }
   buildData(duration, sesion, selected_student, selected_teacher, value_issues);
@@ -157,22 +158,21 @@ var updateSliders = function() {
 }
 
 var buildData = function(duration, sess, student, teacher, isues, callback) {
-
-  if (teacher != null) {
-    if (student != null) {
-      if (duration != null) {
-        if (sess != null) {
-          if (isues != null) {
-            let date = new Date();
-            let time = date.toISOString();
-            time = time.substring(0, time.length - 5);
+  let date = new Date();
+  let time = date.toISOString();
+  time = time.substring(0, time.length - 5);
+  if (student != "" && student != null) {
+    if ((sess.length != 0) && sess != null) {
+      if (duration != "" && duration != null) {
+        if (teacher != "" && teacher != null) {
+          if (isues.lenght != 0 && isues !== null) {
             $.ajax({
                 type: "POST",
                 url: 'https://api.arca.acacia.red/insert/student_issue',
                 beforeSend: function(xhr) {
                   xhr.setRequestHeader("Content-Type", "application/json");
                 },
-                data: {
+                data: JSON.stringify({
                   "Date_Time": time,
                   "Duration": duration,
                   "Session": sess,
@@ -180,28 +180,32 @@ var buildData = function(duration, sess, student, teacher, isues, callback) {
                   "Student": student,
                   "Teacher": teacher,
                   "Issue": isues
-                },
-                dataType: "json"
+                })
               })
               .done(callback)
               .fail(function(error) {
                 console.error('Error', error);
               });
-          } else {}
-        } else {
+          } else {
+            alert("Should insert a value for a issue");
+          }
 
+        } else {
+          alert("Choose a Teacher");
         }
       } else {
-
+        alert("Choose a Duration");
       }
     } else {
-
+      alert("Choose a Session");
     }
   } else {
-
+    alert("Select an Student");
   }
 
 }
+
+
 
 
 //------------------------------------------------------
