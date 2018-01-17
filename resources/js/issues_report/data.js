@@ -163,9 +163,17 @@ var openModal = function() {
 
 var cleanform = function() {
   $('#modalsuccess').on('hidden.bs.modal', function() {
-    location.reload();
+    $("#duration").val("");
+    $("#student").val("");
+    $("#teacher").val("");
+    $('#session').html('');
+    $('#session').multiselect('refresh');
+    $('#session').multiselect('rebuild');
+    $(".slider").val(0);
+    updateSliders();
   })
 }
+
 var buildData = function(duration, sess, student, teacher, isues) {
   let date = new Date();
   let time = date.toISOString();
@@ -216,9 +224,6 @@ var buildData = function(duration, sess, student, teacher, isues) {
 
 }
 
-
-
-
 //------------------------------------------------------
 //  DOCUMENT READY
 //------------------------------------------------------
@@ -233,7 +238,6 @@ $(document).ready(function() {
   $('#student').change(function() {
     selected_student = $(this).val() !== "" ? $(this).val() : null;
     $('#session').prop('disabled', true);
-
     if (selected_student) {
       getListSessions(selected_student, function(_sessions) {
         if (_sessions.length != 0) {
@@ -263,7 +267,6 @@ $(document).ready(function() {
     includeSelectAllOption: true,
     enableFiltering: true
   });
-
 
 
 
