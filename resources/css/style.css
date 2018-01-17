@@ -71,6 +71,10 @@
   width: 50%;
 }
 
+.user {
+  width: 70%;
+}
+
 .range-slider__value {
   font-size: 12px;
   display: inline-block;
