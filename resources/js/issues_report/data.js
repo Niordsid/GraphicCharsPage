@@ -157,7 +157,16 @@ var updateSliders = function() {
   }
 }
 
-var buildData = function(duration, sess, student, teacher, isues, callback) {
+var openModal = function() {
+  $('#modalsuccess').modal('show');
+}
+
+var cleanform = function() {
+  $('#modalsuccess').on('hidden.bs.modal', function() {
+    location.reload();
+  })
+}
+var buildData = function(duration, sess, student, teacher, isues) {
   let date = new Date();
   let time = date.toISOString();
   time = time.substring(0, time.length - 5);
@@ -182,7 +191,9 @@ var buildData = function(duration, sess, student, teacher, isues, callback) {
                   "Issue": isues
                 })
               })
-              .done(callback)
+              .done(function(data) {
+                openModal();
+              })
               .fail(function(error) {
                 console.error('Error', error);
               });
