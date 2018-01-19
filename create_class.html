@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Create Class</title>
+
+  <script src="resources/js/JQuery-3.2.1/jquery-3.2.1.min.js"></script>
+  <script src="resources/js/rest.js"></script>
+  <script src="resources/js/rest2.js"></script>
+  <script src="resources/js/websocket.js"></script>
+
+
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+  <link type="text/css" rel="stylesheet" href="resources/css/style.css" />
+  <!--Import Bootstrap dependencies-->
+  <link type="text/css" rel="stylesheet" href="resources/css/bootstrap/bootstrap.min.css" media="screen,projection" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="resources/js/bootstrap/bootstrap-multiselect.js"></script>
+  <link rel="stylesheet" href="resources/css/bootstrap/bootstrap-multiselect.css" type="text/css" />
+
+  <!--Import Logic-->
+  <script src="resources/js/create_class/create_class.js"></script>
+</head>
+
+<body>
+  <div class="container" id="wrapper">
+    <main role="main">
+      <div class="section">
+        <div class="form-group col-8 mx-auto">
+          <label class="control-label">Subject</label>
+          <input type="text" id="subject" class="form-control" placeholder="Class Name" />
+        </div>
+        <div class="form-group col-8 mx-auto">
+          <label class="control-label">Description</label>
+          <textarea id="description" class="form-control" rows="2" placeholder="Insert a Description"></textarea>
+        </div>
+        <div class="form-group col-8 mx-auto">
+          <label class="control-label">Teacher</label>
+          <select id="teacher" class="form-control" multiple="multiple">                
+                </select>
+        </div>
+        <div class="form-group col-8 mx-auto">
+          <label class="control-label">Students</label>
+          <select id="student" class="form-control" multiple="multiple">
+            </select>
+        </div>
+        <div class="form-row col-8 mx-auto">
+          <div class="col-6 mx-auto">
+            <div class="row align-items-center justify-content-center row-change">
+              <button id="createClass" type="submit" name="button" class="btn btn-success btn-lg user" onclick="createClass()">Create Class</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- Modal -->
+      <div class="modal fade" id="modalsuccess" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalsuccesstitle">Success Submit!</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+            </div>
+            <div class="modal-body">
+              The Class was recorded correctly.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="cleanform()">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+
+</html>
