@@ -224,8 +224,7 @@ var sessionname = function(name) {
     let name = sess[i].substring(8, sess[i].length);
     names.push(name);
   }
-  return names;
-  console.log(names);
+  return names;  
 }
 
 var getGraphicData = function(student, session, callback) {
