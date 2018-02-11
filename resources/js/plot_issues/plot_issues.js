@@ -104,6 +104,7 @@ var renderSession = function(data) {
     html += '<option value="' + unique_array[i] + '">' + unique_array[i] + "</option>";
   }
   $('#session').append(html);
+  $('#session').multiselect('rebuild');
 };
 
 var renderIssues = function(data) {
@@ -113,6 +114,7 @@ var renderIssues = function(data) {
     html += '<option value="' + issue_list[i] + '">' + issue_list[i] + "</option>";
   }
   $('#issues-list').append(html);
+  $('#issues-list').multiselect('rebuild');
 };
 
 var generateChar = function(name_series, data_series) {
@@ -210,9 +212,6 @@ $(document).ready(function() {
   //------------------------------------------------------
   //  EVENTS
   //------------------------------------------------------
-
-
-
   $('#student').change(function() {
     selected_student = $(this).val() !== "" ? $(this).val() : null;
     $('#session').prop('disabled', true); // Disabled sessions list when the user change the Student Selected
@@ -221,9 +220,9 @@ $(document).ready(function() {
       getStudentsIssues(selected_student, function(_data) {
         data = _data;
         $('#session').prop('disabled', false);
-        $('#session').html('<option value="">Choose Session</option>');
+        $('#session').html('');
         $('#issues-list').prop('disabled', false);
-        $('#issues-list').html('<option value="">Choose Issue</option>');
+        $('#issues-list').html('');
         if ($("#manually").is(':checked')) {
           renderIssues(data);
           renderSession(data);
@@ -233,29 +232,23 @@ $(document).ready(function() {
         } else {
 
         }
-
-
-
-        // if ($('#manually').is(':checked')) {
-        //   let filter = "Human_Observation";
-        //   let remove = "Digital_Observation";
-        //   findbyKey(data, filter, remove);
-        // } else if ($('#automatically').is(':checked')) {
-        //   let filter = "Digital_Observation";
-        //   let remove = "Human_Observation";
-        //   findbyKey(data, filter, remove);
-        // } else {
-        //   console.log("You should select a kind of filter");
-        // }
-        // if (_sessions.length) {
-        //   sessions = _sessions;
-        //   $('#session').prop('disabled', false);
-        //   renderSession();
-        // }
       });
     }
   });
 
+  $('#session').multiselect({
+    maxHeight: 400,
+    buttonWidth: '100%',
+    includeSelectAllOption: true,
+    enableFiltering: true
+  });
+  
+  $('#issues-list').multiselect({
+    maxHeight: 400,
+    buttonWidth: '100%',
+    includeSelectAllOption: true,
+    enableFiltering: true
+  });
 
 
 
