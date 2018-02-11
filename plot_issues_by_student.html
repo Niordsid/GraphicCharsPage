@@ -18,9 +18,14 @@
   <!--Import Google Icon Font-->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
-  <!--Import Bootstrap.css-->
-  <link type="text/css" rel="stylesheet" href="resources/css/bootstrap/bootstrap.min.css" media="screen,projection" />
   <link type="text/css" rel="stylesheet" href="resources/css/style.css" />
+  <!--Import Bootstrap dependencies-->
+  <link type="text/css" rel="stylesheet" href="resources/css/bootstrap/bootstrap.min.css" media="screen,projection" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="resources/js/bootstrap/bootstrap-multiselect.js"></script>
+  <link rel="stylesheet" href="resources/css/bootstrap/bootstrap-multiselect.css" type="text/css" />
+  <!--Import Logic-->
   <script src="resources/js/plot_issues/plot_issues.js"></script>
 </head>
 
@@ -48,14 +53,14 @@
         <div class="form-row">
           <div class="form-group col-md-6">
             <label class="control-label">Sessions</label>
-            <select id="session" class="form-control" name="" data-toggle="tooltip" data-placement="top" title="This field is Optional">
-                  <option value="">Choose Session</option>
+            <select id="session" class="form-control" data-toggle="tooltip" data-placement="top" title="This field is Optional" multiple="multiple">
+
                 </select>
           </div>
           <div class="form-group col-md-6">
             <label class="control-label">List of Issues</label>
-            <select id="issues-list" class="form-control" name="" data-toggle="tooltip" data-placement="top" title="This field is Optional">
-                  <option value="">Choose an Issue</option>
+            <select id="issues-list" class="form-control" data-toggle="tooltip" data-placement="top" title="This field is Optional" multiple="multiple">
+                  
                 </select>
           </div>
         </div>
