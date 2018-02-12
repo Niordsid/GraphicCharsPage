@@ -7,6 +7,8 @@ var sessions = [];
 var unique_array = [];
 var issues = [];
 var data = [];
+var graphic_data = [];
+var graphic_series = [];
 
 var selected_student = null;
 var selected_session = null;
@@ -16,9 +18,7 @@ var charta = null;
 
 
 var initialize = function() {
-  $('#session').prop('disabled', true);
-  $('#issues-list').prop('disabled', true);
-
+  renderEmptyFilters();
 
   getListStudents(function(_students) {
     students = _students;
@@ -71,6 +71,15 @@ var getStudentsIssues = function(student_id, callback) {
     });
 };
 
+var renderEmptyFilters = function() {
+  $('#session').prop('disabled', true);
+  $('#session').html('');
+  $('#session').multiselect('rebuild');
+  $('#issues-list').prop('disabled', true);
+  $('#issues-list').html('');
+  $('#issues-list').multiselect('rebuild');
+}
+
 var renderStudents = function() {
   let html = "";
   for (let i = 0; i < students.length; i++) {
@@ -80,6 +89,7 @@ var renderStudents = function() {
 };
 
 var renderSession = function(data) {
+  $('#session').html('');
   let html = "";
   sessions = [];
   unique_array = [];
@@ -108,6 +118,7 @@ var renderSession = function(data) {
 };
 
 var renderIssues = function(data) {
+  $('#issues-list').html('');
   let html = "";
   let issue_list = Object.keys(data);
   for (let i = 0; i < issue_list.length; i++) {
@@ -118,7 +129,6 @@ var renderIssues = function(data) {
 };
 
 var generateChar = function(name_series, data_series) {
-
   charta = new Highcharts.chart('container', {
     chart: {
       type: 'column',
@@ -170,15 +180,16 @@ var generateChar = function(name_series, data_series) {
 }
 
 var findbyKey = function(issu, delt) {
-  let name_issue = Object.keys(issu);
+  let initial_data = JSON.parse(JSON.stringify(issu));
+  let name_issue = Object.keys(initial_data);
   for (let i = 0; i < name_issue.length; i++) {
-    delete issu[name_issue[i]][delt];
+    delete initial_data[name_issue[i]][delt];
   }
-  let observation_keys = Object.keys(issu);
+  let observation_keys = Object.keys(initial_data);
   let raw_seri = {};
   let seri = [];
   for (let i = 0; i < observation_keys.length; i++) {
-    let list_issue = issu[observation_keys[i]];
+    let list_issue = initial_data[observation_keys[i]];
     Object.keys(list_issue).forEach(function(key) {
       let sessi = list_issue[key];
       let sess_val = Object.entries(sessi);
@@ -199,17 +210,27 @@ var findbyKey = function(issu, delt) {
       data: raw_seri[keys_raw_seri[session]]
     });
   }
-  generateChar(name_issue, seri);
-
+  renderIssues(initial_data);
+  renderSession(initial_data);
+  graphic_data = seri;
+  graphic_series = name_issue;
 }
 
 
-
+var renderByFilterSelected = function(raw_data) {
+  if ($("#manually").is(':checked') && !$("#automatically").is(':checked')) {
+    findbyKey(raw_data, "Digital_Observation");
+  } else if ($("#automatically").is(':checked') && !$("#manually").is(':checked')) {
+    findbyKey(raw_data, "Human_Observation");
+  } else {
+    console.log("Should select a filter");
+  }
+}
 var plotGraphic = function() {
   if (charta) {
     charta.destroy();
   }
-  findbyKey(data, "Digital_Observation");
+  generateChar(graphic_series, graphic_data);
 };
 
 
@@ -228,22 +249,22 @@ $(document).ready(function() {
     if (selected_student) {
       getStudentsIssues(selected_student, function(_data) {
         data = _data;
-        $('#session').prop('disabled', false);
-        $('#session').html('');
-        $('#issues-list').prop('disabled', false);
-        $('#issues-list').html('');
-        if ($("#manually").is(':checked')) {
-          renderIssues(data);
-          renderSession(data);
-        } else if ($("#automatically").is(':checked')) {
-          renderIssues(data);
-          renderSession(data);
+        if (Object.keys(data)[0] == "Error") {
+          alert("No Data has been found for the Student Selected");
+          renderEmptyFilters();
         } else {
+          renderByFilterSelected(data); // This function render the data on the fields
+          let clone = data;
+          $('.check-input').change(function() {
+            renderByFilterSelected(clone); // This function should be render the data but the data doesnt exist
+          });
 
         }
       });
     }
   });
+
+
 
   $('#session').multiselect({
     maxHeight: 400,
@@ -259,8 +280,9 @@ $(document).ready(function() {
     enableFiltering: true
   });
 
-
-
+  $('.check-input').on('change', function() {
+    $('.check-input').not(this).prop('checked', false);
+  });
 
   //------------------------------------------------------
   //  INITIALIZATION
