@@ -118,6 +118,7 @@ var renderIssues = function(data) {
 };
 
 var generateChar = function(name_series, data_series) {
+
   charta = new Highcharts.chart('container', {
     chart: {
       type: 'column',
@@ -168,12 +169,13 @@ var generateChar = function(name_series, data_series) {
   });
 }
 
-var findbyKey = function(issu, filt, delt) {
+var findbyKey = function(issu, delt) {
   let name_issue = Object.keys(issu);
   for (let i = 0; i < name_issue.length; i++) {
     delete issu[name_issue[i]][delt];
   }
   let observation_keys = Object.keys(issu);
+  let raw_seri = {};
   let seri = [];
   for (let i = 0; i < observation_keys.length; i++) {
     let list_issue = issu[observation_keys[i]];
@@ -182,25 +184,32 @@ var findbyKey = function(issu, filt, delt) {
       let sess_val = Object.entries(sessi);
       for (let hi = 0; hi < sess_val.length; hi++) {
         let arry = sess_val[hi];
-        seri.push({
-          name: arry[0],
-          data: parseFloat(arry[1])
-        });
-
+        if (raw_seri[arry[0]]) {
+          raw_seri[arry[0]].push(parseFloat(arry[1]));
+        } else {
+          raw_seri[arry[0]] = [parseFloat(arry[1])];
+        }
       }
-
-
     });
   }
-
+  let keys_raw_seri = Object.keys(raw_seri);
+  for (let session = 0; session < keys_raw_seri.length; session++) {
+    seri.push({
+      name: keys_raw_seri[session],
+      data: raw_seri[keys_raw_seri[session]]
+    });
+  }
   generateChar(name_issue, seri);
 
 }
+
+
 
 var plotGraphic = function() {
   if (charta) {
     charta.destroy();
   }
+  findbyKey(data, "Digital_Observation");
 };
 
 
@@ -242,7 +251,7 @@ $(document).ready(function() {
     includeSelectAllOption: true,
     enableFiltering: true
   });
-  
+
   $('#issues-list').multiselect({
     maxHeight: 400,
     buttonWidth: '100%',
