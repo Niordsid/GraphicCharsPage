@@ -10,6 +10,11 @@
   height: 100vh;
 }
 
+.section-issues {
+  height: 100vh;
+  font-size: 14px;
+}
+
 .grapone {
   padding-top: 40px;
   border-bottom: 0.5px solid #D8D8D8;
@@ -17,6 +22,13 @@
 
 .control-label {
   font-size: 20px;
+  color: #6E6E6E;
+  border-bottom: 1px solid #BDBDBD;
+  padding-bottom: 5px;
+}
+
+.control-label-plotissues {
+  font-size: 15px;
   color: #6E6E6E;
   border-bottom: 1px solid #BDBDBD;
   padding-bottom: 5px;
