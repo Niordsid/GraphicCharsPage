@@ -212,10 +212,20 @@ var findbyKey = function(issu, delt) {
   }
   renderIssues(initial_data);
   renderSession(initial_data);
+  name_issue.forEach(key => {
+    if (Object.keys(initial_data[key]).length > 0) {
+      //tiene cosas por dentro
+    } else {
+      let key_to_delete = key;
+      let index = name_issue.indexOf(key_to_delete);
+      if(index > -1){
+        name_issue.splice(index, 1);
+      }
+    }
+  })
   graphic_data = seri;
   graphic_series = name_issue;
 }
-
 
 var renderByFilterSelected = function(raw_data) {
   if ($("#manually").is(':checked') && !$("#automatically").is(':checked')) {
@@ -223,9 +233,10 @@ var renderByFilterSelected = function(raw_data) {
   } else if ($("#automatically").is(':checked') && !$("#manually").is(':checked')) {
     findbyKey(raw_data, "Human_Observation");
   } else {
-    console.log("Should select a filter");
+    alert("Please Select a Filter (Auto/Manual)");
   }
 }
+
 var plotGraphic = function() {
   if (charta) {
     charta.destroy();
