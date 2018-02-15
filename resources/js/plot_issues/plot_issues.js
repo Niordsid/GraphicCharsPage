@@ -88,14 +88,10 @@ var renderStudents = function() {
   $('#student').append(html);
 };
 
-var renderSession = function(data) {
-  $('#session').html('');
-  let html = "";
-  sessions = [];
-  unique_array = [];
-  let data_student = Object.keys(data);
+var listOfSessions = function(listsessions) {
+  let data_student = Object.keys(listsessions);
   for (let i = 0; i < data_student.length; i++) {
-    let data_filter = data[data_student[i]];
+    let data_filter = listsessions[data_student[i]];
     Object.keys(data_filter).forEach(function(key) {
       let sessions_object = data_filter[key];
       let sess_array = Object.keys(sessions_object);
@@ -109,9 +105,17 @@ var renderSession = function(data) {
       }
     });
   }
+  return unique_array;
+}
 
-  for (i = 0; i < unique_array.length; i++) {
-    html += '<option value="' + unique_array[i] + '">' + unique_array[i] + "</option>";
+var renderSession = function(data) {
+  $('#session').html('');
+  let html = "";
+  sessions = [];
+  unique_array = [];
+  let totalSessions = listOfSessions(data);
+  for (i = 0; i < totalSessions.length; i++) {
+    html += '<option value="' + totalSessions[i] + '">' + totalSessions[i] + "</option>";
   }
   $('#session').append(html);
   $('#session').multiselect('rebuild');
@@ -121,6 +125,17 @@ var renderIssues = function(data) {
   $('#issues-list').html('');
   let html = "";
   let issue_list = Object.keys(data);
+  issue_list.forEach(key => {
+    if (Object.keys(data[key]).length > 0) {
+      //tiene cosas por dentro
+    } else {
+      let key_to_delete = key;
+      let index = issue_list.indexOf(key_to_delete);
+      if (index > -1) {
+        issue_list.splice(index, 1);
+      }
+    }
+  })
   for (let i = 0; i < issue_list.length; i++) {
     html += '<option value="' + issue_list[i] + '">' + issue_list[i] + "</option>";
   }
@@ -188,10 +203,25 @@ var findbyKey = function(issu, delt) {
   let observation_keys = Object.keys(initial_data);
   let raw_seri = {};
   let seri = [];
+  //--------------- Check the total Sessions and check each issue session, if any session is not present on the issue session, the value of the session will be added with a initial value 0
   for (let i = 0; i < observation_keys.length; i++) {
     let list_issue = initial_data[observation_keys[i]];
     Object.keys(list_issue).forEach(function(key) {
       let sessi = list_issue[key];
+
+      let sessionlist = listOfSessions(issu);
+      let object_sessions = {};
+      for (let i = 0; i < sessionlist.length; i++) {
+        object_sessions[i] = sessionlist[i];
+      }
+
+      for (let i = 0; i < sessionlist.length; i++) {
+        if (sessi.hasOwnProperty(sessionlist[i])) {
+
+        } else {
+          sessi[sessionlist[i]] = "0";
+        }
+      }
       let sess_val = Object.entries(sessi);
       for (let hi = 0; hi < sess_val.length; hi++) {
         let arry = sess_val[hi];
@@ -203,6 +233,7 @@ var findbyKey = function(issu, delt) {
       }
     });
   }
+  //----------------
   let keys_raw_seri = Object.keys(raw_seri);
   for (let session = 0; session < keys_raw_seri.length; session++) {
     seri.push({
@@ -218,13 +249,15 @@ var findbyKey = function(issu, delt) {
     } else {
       let key_to_delete = key;
       let index = name_issue.indexOf(key_to_delete);
-      if(index > -1){
+      if (index > -1) {
         name_issue.splice(index, 1);
       }
     }
   })
+
   graphic_data = seri;
   graphic_series = name_issue;
+
 }
 
 var renderByFilterSelected = function(raw_data) {
