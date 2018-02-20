@@ -42,24 +42,29 @@
                 </select>
           </div>
         </div>
-        <div class="form-group">
-          <input type="checkbox" class="check-input" id="manually" checked>
-          <label class="form-check-label" for="manually">Plot Issue Classified Manually</label>
-        </div>
-        <div class="form-group">
-          <input type="checkbox" class="check-input" id="automatically">
-          <label class="form-check-label" for="automatically">Plot Issue Classified Automatically</label>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label class="control-label-plotissues">List of Issues</label>
+            <select id="issues-list" class="form-control" data-toggle="tooltip" data-placement="top" title="This field is Optional" multiple="multiple">
+              </select>
+          </div>
+          <div class="form-group col-md-6">
+            <div class="Radio-Buttons">
+              <div class="form-group">
+                <input type="radio" class="radio-input" name="KindObservation" id="Manually" checked>
+                <label class="form-check-label" for="manually">Plot Issue Classified Manually</label>
+              </div>
+              <div class="form-group">
+                <input type="radio" class="radio-input" name="KindObservation" id="Automatically">
+                <label class="form-check-label" for="automatically">Plot Issue Classified Automatically</label>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="form-row">
           <div class="form-group col-md-6">
             <label class="control-label-plotissues">Sessions</label>
             <select id="session" class="form-control" data-toggle="tooltip" data-placement="top" title="This field is Optional" multiple="multiple">
-
-                </select>
-          </div>
-          <div class="form-group col-md-6">
-            <label class="control-label-plotissues">List of Issues</label>
-            <select id="issues-list" class="form-control" data-toggle="tooltip" data-placement="top" title="This field is Optional" multiple="multiple">
 
                 </select>
           </div>
