@@ -6,9 +6,13 @@ var students = [];
 var sessions = [];
 var unique_array = [];
 var issues = [];
-var data = [];
+
+var raw_issues_by_student = {};
+var studentIssues = {};
+var filters = {};
+
 var graphic_data = [];
-var graphic_series = [];
+var graphic_categories = [];
 
 var selected_student = null;
 var selected_session = null;
@@ -17,7 +21,7 @@ var selected_issue = null;
 var charta = null;
 
 
-var initialize = function() {
+function initialize() {
   renderEmptyFilters();
 
   getListStudents(function(_students) {
@@ -27,7 +31,7 @@ var initialize = function() {
 
 };
 
-var getListStudents = function(callback) {
+function getListStudents(callback) {
   $.ajax({
       url: "https://api.arca.acacia.red/list/Student",
       method: 'GET',
@@ -39,23 +43,7 @@ var getListStudents = function(callback) {
     });
 };
 
-var getListSessions = function(student_id, callback) {
-  $.ajax({
-      url: "https://api.arca.acacia.red/list/sessions_of_student",
-      method: 'POST',
-      beforeSend: function(xhr) {
-        xhr.setRequestHeader("Content-Type", "application/json");
-      },
-      data: JSON.stringify([student_id]),
-      dataType: "json"
-    })
-    .done(callback)
-    .fail(function(error) {
-      console.error('Error', error);
-    });
-};
-
-var getStudentsIssues = function(student_id, callback) {
+function getStudentsIssues(student_id, callback) {
   $.ajax({
       url: "https://api.arca.acacia.red/plot/issue_student",
       method: 'POST',
@@ -71,7 +59,7 @@ var getStudentsIssues = function(student_id, callback) {
     });
 };
 
-var renderEmptyFilters = function() {
+function renderEmptyFilters() {
   $('#session').prop('disabled', true);
   $('#session').html('');
   $('#session').multiselect('rebuild');
@@ -80,7 +68,7 @@ var renderEmptyFilters = function() {
   $('#issues-list').multiselect('rebuild');
 }
 
-var renderStudents = function() {
+function renderStudents() {
   let html = "";
   for (let i = 0; i < students.length; i++) {
     html += '<option value="' + students[i]['Student'] + '">' + students[i]['Name'] + "</option>";
@@ -88,7 +76,7 @@ var renderStudents = function() {
   $('#student').append(html);
 };
 
-var listOfSessions = function(listsessions) {
+function listOfSessions(listsessions) {
   let data_student = Object.keys(listsessions);
   for (let i = 0; i < data_student.length; i++) {
     let data_filter = listsessions[data_student[i]];
@@ -108,42 +96,34 @@ var listOfSessions = function(listsessions) {
   return unique_array;
 }
 
-var renderSession = function(data) {
+function renderSession(data) {
+  var copy_sessions_data = data;
   $('#session').html('');
   let html = "";
   sessions = [];
   unique_array = [];
-  let totalSessions = listOfSessions(data);
+  let totalSessions = listOfSessions(copy_sessions_data);
   for (i = 0; i < totalSessions.length; i++) {
     html += '<option value="' + totalSessions[i] + '">' + totalSessions[i] + "</option>";
   }
   $('#session').append(html);
   $('#session').multiselect('rebuild');
-};
+}; // Render the sessions list before apply the filters
 
-var renderIssues = function(data) {
+function renderIssues(data) {
+  let keys_raw_data = Object.keys(data);
   $('#issues-list').html('');
   let html = "";
-  let issue_list = Object.keys(data);
-  issue_list.forEach(key => {
-    if (Object.keys(data[key]).length > 0) {
-      //tiene cosas por dentro
-    } else {
-      let key_to_delete = key;
-      let index = issue_list.indexOf(key_to_delete);
-      if (index > -1) {
-        issue_list.splice(index, 1);
-      }
-    }
-  })
-  for (let i = 0; i < issue_list.length; i++) {
-    html += '<option value="' + issue_list[i] + '">' + issue_list[i] + "</option>";
+  for (var i in keys_raw_data) {
+    var issue = keys_raw_data[i] // "e.g. lack of performance"
+    html += '<option value="' + issue + '">' + issue + "</option>";
   }
   $('#issues-list').append(html);
   $('#issues-list').multiselect('rebuild');
 };
 
-var generateChar = function(name_series, data_series) {
+function generateChar(name_series, data_series) {
+
   charta = new Highcharts.chart('container', {
     chart: {
       type: 'column',
@@ -194,35 +174,136 @@ var generateChar = function(name_series, data_series) {
   });
 }
 
-var findbyKey = function(issu, delt) {
-  let initial_data = JSON.parse(JSON.stringify(issu));
-  let name_issue = Object.keys(initial_data);
-  for (let i = 0; i < name_issue.length; i++) {
-    delete initial_data[name_issue[i]][delt];
+function plotGraphic() {
+  if (charta) {
+    charta.destroy();
   }
-  let observation_keys = Object.keys(initial_data);
-  let raw_seri = {};
-  let seri = [];
-  //--------------- Check the total Sessions and check each issue session, if any session is not present on the issue session, the value of the session will be added with a initial value 0
-  for (let i = 0; i < observation_keys.length; i++) {
-    let list_issue = initial_data[observation_keys[i]];
-    Object.keys(list_issue).forEach(function(key) {
-      let sessi = list_issue[key];
+  let raw_data = studentIssues;
+  let raw_filters = filters;
+  if ($("#Manually").is(':checked')) {
+    kindfilter = ["Human_Observation"];
+    raw_filters.KindObservation = kindfilter;
+  } else if ($("#Automatically").is(':checked')) {
+    kindfilter = ["Digital_Observation"];
+    raw_filters.KindObservation = kindfilter;
+  }
+  let data_filtered = applyFilters(raw_data, raw_filters);
+  formatToPlot(data_filtered);
+};
 
-      let sessionlist = listOfSessions(issu);
-      let object_sessions = {};
-      for (let i = 0; i < sessionlist.length; i++) {
-        object_sessions[i] = sessionlist[i];
-      }
+function buildFilters(rawData) {
 
-      for (let i = 0; i < sessionlist.length; i++) {
-        if (sessi.hasOwnProperty(sessionlist[i])) {
+  let copy_raw_data = rawData;
+  // ... build filters list with events
+  buildIssueFilters(copy_raw_data); // modify the issue filters list
+}
 
-        } else {
-          sessi[sessionlist[i]] = "0";
+function eventsFilters(dataIssues) {
+  $("#issues-list").change(function() {
+    if ($('#issues-list').val().length > 0) {
+      let issues_values = $('#issues-list').val();
+      var data_issue_filter = getIssuesFromData(dataIssues, issues_values);
+      filters.Issues = issues_values;
+      let kindfilter = [];
+      buildSessionFilters(data_issue_filter);
+      $(".radio-input").change(function() {
+        buildSessionFilters(data_issue_filter);
+      });
+    } else {
+      console.log("No seleccione nada le mando los datos sin filtros");
+    }
+  });
+}
+
+function buildIssueFilters(issues) {
+  var listofIssues = issues
+
+  renderIssues(listofIssues); // Render the list of Issues that the student has presented
+  eventsFilters(listofIssues);
+
+  // for (var i in issues) {
+  //   var issue = issues[i] // "e.g. lack of performance"
+  //   // ... create checkbox for the issue
+  //   $(".check-input").change(function(evt) {
+  //     if (evt.target.checked) {
+  //       console.log(issue);
+  //       addFilter("issue", issue) // filters["issues"].push(issue) // "lack of perfor..."
+  //     } else {
+  //       //  removeFilter("issue", issue)
+  //
+  //     }
+  //     //plot(applyFilters(studentIssues, filters));
+  //   });
+  // }
+
+}
+
+function buildSessionFilters(data) {
+  let raw_data_issues = data;
+  if ($("#Manually").is(':checked')) {
+    kindfilter = ["Human_Observation"];
+    filters.KindObservation = kindfilter;
+    var data_kindobservation_filter = getIssueTypeData(raw_data_issues, kindfilter);
+    renderSession(data_kindobservation_filter);
+  } else if ($("#Automatically").is(':checked')) {
+    kindfilter = ["Digital_Observation"];
+    filters.KindObservation = kindfilter;
+    var data_kindobservation_filter = getIssueTypeData(raw_data_issues, kindfilter);
+    renderSession(data_kindobservation_filter);
+  }
+
+  $('#session').change(function() {
+    let selected_sessions = $('#session').val();
+    filters.Sessions = selected_sessions;
+  });
+
+}
+
+function sessionsFiltered(raw_data) {
+  let presented_sessions = [];
+  let ordered_sessions = [];
+  var categories = Object.keys(raw_data);
+
+  for (var i in categories) {
+    let observartion = raw_data[categories[i]];
+    let kind_observation = Object.keys(observartion);
+    for (var key_observation in kind_observation) {
+      var total_sessions = observartion[kind_observation[key_observation]];
+      var key_sessions = Object.keys(total_sessions);
+      for (var index_sessions in key_sessions) {
+        presented_sessions.push(key_sessions[index_sessions]);
+        for (let i = 0; i < presented_sessions.length; i++) {
+          if (ordered_sessions.indexOf(presented_sessions[i]) == -1) {
+            ordered_sessions.push(presented_sessions[i])
+          }
         }
       }
-      let sess_val = Object.entries(sessi);
+    }
+  }
+  return ordered_sessions;
+}
+
+function formatToPlot(data) {
+  let keys_sessions = sessionsFiltered(data);
+  let presented_sessions = [];
+  var categories = Object.keys(data);
+  let raw_seri = {};
+  let seri = [];
+
+  for (var i in categories) {
+    let observartion = data[categories[i]];
+    let kind_observation = Object.keys(observartion);
+    for (var key_observation in kind_observation) {
+      var total_sessions = observartion[kind_observation[key_observation]];
+      var key_sessions = Object.keys(total_sessions);
+      for (let i = 0; i < keys_sessions.length; i++) {
+        if (total_sessions.hasOwnProperty(keys_sessions[i])) {
+
+        } else {
+          total_sessions[keys_sessions[i]] = "0";
+        }
+      }
+      let sess_val = Object.entries(total_sessions);
       for (let hi = 0; hi < sess_val.length; hi++) {
         let arry = sess_val[hi];
         if (raw_seri[arry[0]]) {
@@ -231,9 +312,10 @@ var findbyKey = function(issu, delt) {
           raw_seri[arry[0]] = [parseFloat(arry[1])];
         }
       }
-    });
+
+
+    }
   }
-  //----------------
   let keys_raw_seri = Object.keys(raw_seri);
   for (let session = 0; session < keys_raw_seri.length; session++) {
     seri.push({
@@ -241,42 +323,94 @@ var findbyKey = function(issu, delt) {
       data: raw_seri[keys_raw_seri[session]]
     });
   }
-  renderIssues(initial_data);
-  renderSession(initial_data);
-  name_issue.forEach(key => {
-    if (Object.keys(initial_data[key]).length > 0) {
-      //tiene cosas por dentro
-    } else {
-      let key_to_delete = key;
-      let index = name_issue.indexOf(key_to_delete);
-      if (index > -1) {
-        name_issue.splice(index, 1);
+  generateChar(categories, seri);
+//  console.log(keys_sessions);
+}
+
+function plot(data) {
+  // ... build chart
+}
+
+function applyFilters(data, filters) {
+  if (typeof filters.Issues === "undefined") {
+    var issuesData = data;
+  } else {
+    var issuesData = getIssuesFromData(data, filters.Issues); // get a copy the data just with the selected issues
+  }
+  var issueTypeData = getIssueTypeData(issuesData, filters.KindObservation); // another copy
+  // get or create (value is zero) the session value for each issue type on each issue
+  if (typeof filters.Sessions === "undefined") {
+    var sessionsData = issueTypeData;
+  } else {
+    var sessionsData = getSessionsData(issueTypeData, filters.Sessions);
+  }
+  return sessionsData;
+  //return formatToPlot(sessionsData);
+}
+
+// Processes to apply the selected filters obtain the required data
+
+function getIssuesFromData(data, issuesFilters) { // Filter de data by Issues
+  var copyIssues = {};
+  let issueKeys = Object.keys(data);
+  if (issuesFilters.length == 0) {
+    console.log("No hay filtro ");
+  } else {
+    for (var i in issuesFilters) {
+      let issuFilt = issuesFilters[i];
+      if (data.hasOwnProperty(issuFilt)) {
+        copyIssues[issuFilt] = data[issuFilt];
+      } else {
+        alert("Invalid filter for the data");
       }
     }
-  })
+  }
 
-  graphic_data = seri;
-  graphic_series = name_issue;
-
+  return copyIssues;
 }
 
-var renderByFilterSelected = function(raw_data) {
-  if ($("#manually").is(':checked') && !$("#automatically").is(':checked')) {
-    findbyKey(raw_data, "Digital_Observation");
-  } else if ($("#automatically").is(':checked') && !$("#manually").is(':checked')) {
-    findbyKey(raw_data, "Human_Observation");
-  } else {
-    alert("Please Select a Filter (Auto/Manual)");
+function getIssueTypeData(data, kindfilters) {
+  var copyIssueType = {};
+  let issueKeys = Object.keys(data);
+  for (var i in issueKeys) {
+    let issue = data[issueKeys[i]];
+    let issueCopy = copyIssueType[issueKeys[i]] = {};
+    for (var i in kindfilters) {
+      let kindfilt = kindfilters[i];
+      if (issue.hasOwnProperty(kindfilt)) {
+        issueCopy[kindfilt] = issue[kindfilt];
+      } else {
+        alert("No data found for the Selected filter configuration");
+      }
+    }
   }
+  return copyIssueType;
 }
 
-var plotGraphic = function() {
-  if (charta) {
-    charta.destroy();
-  }
-  generateChar(graphic_series, graphic_data);
-};
+function getSessionsData(data, sessionFilters) { // Filter de data by Sessions
+  var copySessions = {};
 
+  let issueKeys = Object.keys(data);
+  for (var i in issueKeys) { // iterate issues
+    let issue = data[issueKeys[i]];
+    let issueCopy = copySessions[issueKeys[i]] = {};
+    typeKeys = Object.keys(data[issueKeys[i]]);
+    for (var i in typeKeys) {
+      let type = issue[typeKeys[i]];
+      console.log(type);
+      var typeCopy = issueCopy[typeKeys[i]] = {};
+      for (var i in sessionFilters) {
+        let session = sessionFilters[i];
+        if (type.hasOwnProperty(session)) {
+          typeCopy[session] = type[session];
+        } else {
+          typeCopy[session] = 0;
+        }
+      }
+    }
+  }
+  return copySessions;
+}
 
 //------------------------------------------------------
 //  DOCUMENT READY
@@ -287,28 +421,26 @@ $(document).ready(function() {
   //  EVENTS
   //------------------------------------------------------
   $('#student').change(function() {
+    filters = {};
     selected_student = $(this).val() !== "" ? $(this).val() : null;
     $('#session').prop('disabled', true); // Disabled sessions list when the user change the Student Selected
     $('#issues-list').prop('disabled', true); // Disabled isues list when the user change the Student Selected
     if (selected_student) {
       getStudentsIssues(selected_student, function(_data) {
-        data = _data;
-        if (Object.keys(data)[0] == "Error") {
+        raw_issues_by_student = _data;
+        studentIssues = _data;
+        if (Object.keys(raw_issues_by_student)[0] == "Error") {
           alert("No Data has been found for the Student Selected");
           renderEmptyFilters();
         } else {
-          renderByFilterSelected(data); // This function render the data on the fields
-          let clone = data;
-          $('.check-input').change(function() {
-            renderByFilterSelected(clone); // This function should be render the data but the data doesnt exist
-          });
+          buildFilters(raw_issues_by_student);
 
+          // graficar cada vez que se cambian los filtros
+          //plot(applyFilters(studentIssues, filters));
         }
       });
     }
   });
-
-
 
   $('#session').multiselect({
     maxHeight: 400,
@@ -322,10 +454,6 @@ $(document).ready(function() {
     buttonWidth: '100%',
     includeSelectAllOption: true,
     enableFiltering: true
-  });
-
-  $('.check-input').on('change', function() {
-    $('.check-input').not(this).prop('checked', false);
   });
 
   //------------------------------------------------------
