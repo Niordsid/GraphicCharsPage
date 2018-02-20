@@ -175,6 +175,7 @@ function generateChar(name_series, data_series) {
 }
 
 function plotGraphic() {
+  let data_filtered = {};
   if (charta) {
     charta.destroy();
   }
@@ -187,7 +188,7 @@ function plotGraphic() {
     kindfilter = ["Digital_Observation"];
     raw_filters.KindObservation = kindfilter;
   }
-  let data_filtered = applyFilters(raw_data, raw_filters);
+  data_filtered = applyFilters(raw_data, raw_filters);
   formatToPlot(data_filtered);
 };
 
@@ -311,7 +312,7 @@ function formatToPlot(data) {
 
 }
 
-function applyFilters(data, filters) {
+function applyFilters(data, filters) {  
   if (typeof filters.Issues === "undefined") {
     var issuesData = data;
   } else {
@@ -320,6 +321,8 @@ function applyFilters(data, filters) {
   var issueTypeData = getIssueTypeData(issuesData, filters.KindObservation); // another copy
   // get or create (value is zero) the session value for each issue type on each issue
   if (typeof filters.Sessions === "undefined") {
+    var sessionsData = issueTypeData;
+  } else if (filters.Sessions.length == 0) {
     var sessionsData = issueTypeData;
   } else {
     var sessionsData = getSessionsData(issueTypeData, filters.Sessions);
@@ -377,7 +380,6 @@ function getSessionsData(data, sessionFilters) { // Filter de data by Sessions
     typeKeys = Object.keys(data[issueKeys[i]]);
     for (var i in typeKeys) {
       let type = issue[typeKeys[i]];
-      console.log(type);
       var typeCopy = issueCopy[typeKeys[i]] = {};
       for (var i in sessionFilters) {
         let session = sessionFilters[i];
@@ -413,7 +415,8 @@ $(document).ready(function() {
           alert("No Data has been found for the Student Selected");
           renderEmptyFilters();
         } else {
-          buildFilters(raw_issues_by_student);          
+          buildFilters(raw_issues_by_student);
+
         }
       });
     }
