@@ -220,22 +220,6 @@ function buildIssueFilters(issues) {
 
   renderIssues(listofIssues); // Render the list of Issues that the student has presented
   eventsFilters(listofIssues);
-
-  // for (var i in issues) {
-  //   var issue = issues[i] // "e.g. lack of performance"
-  //   // ... create checkbox for the issue
-  //   $(".check-input").change(function(evt) {
-  //     if (evt.target.checked) {
-  //       console.log(issue);
-  //       addFilter("issue", issue) // filters["issues"].push(issue) // "lack of perfor..."
-  //     } else {
-  //       //  removeFilter("issue", issue)
-  //
-  //     }
-  //     //plot(applyFilters(studentIssues, filters));
-  //   });
-  // }
-
 }
 
 function buildSessionFilters(data) {
@@ -324,11 +308,7 @@ function formatToPlot(data) {
     });
   }
   generateChar(categories, seri);
-//  console.log(keys_sessions);
-}
 
-function plot(data) {
-  // ... build chart
 }
 
 function applyFilters(data, filters) {
@@ -345,7 +325,7 @@ function applyFilters(data, filters) {
     var sessionsData = getSessionsData(issueTypeData, filters.Sessions);
   }
   return sessionsData;
-  //return formatToPlot(sessionsData);
+
 }
 
 // Processes to apply the selected filters obtain the required data
@@ -433,10 +413,7 @@ $(document).ready(function() {
           alert("No Data has been found for the Student Selected");
           renderEmptyFilters();
         } else {
-          buildFilters(raw_issues_by_student);
-
-          // graficar cada vez que se cambian los filtros
-          //plot(applyFilters(studentIssues, filters));
+          buildFilters(raw_issues_by_student);          
         }
       });
     }
