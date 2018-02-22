@@ -11,10 +11,6 @@ var raw_student_by_issue = {};
 var issueStudents = {};
 var filters = {};
 
-var graphic_data = [];
-var graphic_categories = [];
-
-var selected_student = null;
 var selected_session = null;
 var selected_issue = null;
 
@@ -127,7 +123,7 @@ function generateChar(name_series, data_series) {
   charta = new Highcharts.chart('container', {
     chart: {
       type: 'column',
-      inverted: true
+      inverted: false
     },
     title: {
       text: 'Issues presented by Student'
