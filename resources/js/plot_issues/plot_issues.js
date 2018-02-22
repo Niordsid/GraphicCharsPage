@@ -1,14 +1,14 @@
 //------------------------------------------------------
 //  GLOBAL VARIABLES
 //------------------------------------------------------
-
+var issues = [];
 var students = [];
 var sessions = [];
 var unique_array = [];
-var issues = [];
 
-var raw_issues_by_student = {};
-var studentIssues = {};
+
+var raw_student_by_issue = {};
+var issueStudents = {};
 var filters = {};
 
 var graphic_data = [];
@@ -24,16 +24,16 @@ var charta = null;
 function initialize() {
   renderEmptyFilters();
 
-  getListStudents(function(_students) {
-    students = _students;
-    renderStudents();
+  getListIssues(function(_issues) {
+    issues = _issues;
+    renderIssues();
   });
 
 };
 
-function getListStudents(callback) {
+function getListIssues(callback) {
   $.ajax({
-      url: "https://api.arca.acacia.red/list/Student",
+      url: "https://api.arca.acacia.red/list/Issue",
       method: 'GET',
       dataType: "json"
     })
@@ -43,14 +43,14 @@ function getListStudents(callback) {
     });
 };
 
-function getStudentsIssues(student_id, callback) {
+function getIssuesStudents(issue_selected, callback) {
   $.ajax({
-      url: "https://api.arca.acacia.red/plot/issue_student",
+      url: "https://api.arca.acacia.red/plot/issue",
       method: 'POST',
       beforeSend: function(xhr) {
         xhr.setRequestHeader("Content-Type", "application/json");
       },
-      data: JSON.stringify([student_id]),
+      data: JSON.stringify([issue_selected]),
       dataType: "json"
     })
     .done(callback)
@@ -63,17 +63,17 @@ function renderEmptyFilters() {
   $('#session').prop('disabled', true);
   $('#session').html('');
   $('#session').multiselect('rebuild');
-  $('#issues-list').prop('disabled', true);
-  $('#issues-list').html('');
-  $('#issues-list').multiselect('rebuild');
+  $('#students-list').prop('disabled', true);
+  $('#students-list').html('');
+  $('#students-list').multiselect('rebuild');
 }
 
-function renderStudents() {
+function renderIssues() {
   let html = "";
-  for (let i = 0; i < students.length; i++) {
-    html += '<option value="' + students[i]['Student'] + '">' + students[i]['Name'] + "</option>";
+  for (let i = 0; i < issues.length; i++) {
+    html += '<option value="' + issues[i]["Issue"] + '">' + issues[i]["Issue"] + "</option>";
   }
-  $('#student').append(html);
+  $('#issue').append(html);
 };
 
 function listOfSessions(listsessions) {
@@ -110,16 +110,16 @@ function renderSession(data) {
   $('#session').multiselect('rebuild');
 }; // Render the sessions list before apply the filters
 
-function renderIssues(data) {
+function renderStudents(data) {
   let keys_raw_data = Object.keys(data);
-  $('#issues-list').html('');
+  $('#students-list').html('');
   let html = "";
   for (var i in keys_raw_data) {
-    var issue = keys_raw_data[i] // "e.g. lack of performance"
-    html += '<option value="' + issue + '">' + issue + "</option>";
+    var student = keys_raw_data[i] // "e.g. lack of performance"
+    html += '<option value="' + student + '">' + student + "</option>";
   }
-  $('#issues-list').append(html);
-  $('#issues-list').multiselect('rebuild');
+  $('#students-list').append(html);
+  $('#students-list').multiselect('rebuild');
 };
 
 function generateChar(name_series, data_series) {
@@ -179,7 +179,7 @@ function plotGraphic() {
   if (charta) {
     charta.destroy();
   }
-  let raw_data = studentIssues;
+  let raw_data = issueStudents;
   let raw_filters = filters;
   if ($("#Manually").is(':checked')) {
     kindfilter = ["Human_Observation"];
@@ -199,12 +199,12 @@ function buildFilters(rawData) {
   buildIssueFilters(copy_raw_data); // modify the issue filters list
 }
 
-function eventsFilters(dataIssues) {
-  $("#issues-list").change(function() {
-    if ($('#issues-list').val().length > 0) {
-      let issues_values = $('#issues-list').val();
-      var data_issue_filter = getIssuesFromData(dataIssues, issues_values);
-      filters.Issues = issues_values;
+function eventsFilters(dataStudent) {
+  $("#students-list").change(function() {
+    if ($('#students-list').val().length > 0) {
+      let student_values = $('#students-list').val();
+      var data_issue_filter = getStudentsFromData(dataStudent, student_values);
+      filters.Students = student_values;
       let kindfilter = [];
       buildSessionFilters(data_issue_filter);
       $(".radio-input").change(function() {
@@ -217,10 +217,10 @@ function eventsFilters(dataIssues) {
 }
 
 function buildIssueFilters(issues) {
-  var listofIssues = issues
+  var listofStudents = issues
 
-  renderIssues(listofIssues); // Render the list of Issues that the student has presented
-  eventsFilters(listofIssues);
+  renderStudents(listofStudents); // Render the list of Studens by Issue selected
+  eventsFilters(listofStudents);
 }
 
 function buildSessionFilters(data) {
@@ -228,12 +228,12 @@ function buildSessionFilters(data) {
   if ($("#Manually").is(':checked')) {
     kindfilter = ["Human_Observation"];
     filters.KindObservation = kindfilter;
-    var data_kindobservation_filter = getIssueTypeData(raw_data_issues, kindfilter);
+    var data_kindobservation_filter = getStudentTypeData(raw_data_issues, kindfilter);
     renderSession(data_kindobservation_filter);
   } else if ($("#Automatically").is(':checked')) {
     kindfilter = ["Digital_Observation"];
     filters.KindObservation = kindfilter;
-    var data_kindobservation_filter = getIssueTypeData(raw_data_issues, kindfilter);
+    var data_kindobservation_filter = getStudentTypeData(raw_data_issues, kindfilter);
     renderSession(data_kindobservation_filter);
   }
 
@@ -312,20 +312,20 @@ function formatToPlot(data) {
 
 }
 
-function applyFilters(data, filters) {  
-  if (typeof filters.Issues === "undefined") {
-    var issuesData = data;
+function applyFilters(data, filters) {
+  if (typeof filters.Students === "undefined") {
+    var studentsData = data;
   } else {
-    var issuesData = getIssuesFromData(data, filters.Issues); // get a copy the data just with the selected issues
+    var studentsData = getStudentsFromData(data, filters.Students); // get a copy the data just with the selected issues
   }
-  var issueTypeData = getIssueTypeData(issuesData, filters.KindObservation); // another copy
+  var studentTypeData = getStudentTypeData(studentsData, filters.KindObservation); // another copy
   // get or create (value is zero) the session value for each issue type on each issue
   if (typeof filters.Sessions === "undefined") {
-    var sessionsData = issueTypeData;
+    var sessionsData = studentTypeData;
   } else if (filters.Sessions.length == 0) {
-    var sessionsData = issueTypeData;
+    var sessionsData = studentTypeData;
   } else {
-    var sessionsData = getSessionsData(issueTypeData, filters.Sessions);
+    var sessionsData = getSessionsData(studentTypeData, filters.Sessions);
   }
   return sessionsData;
 
@@ -333,9 +333,9 @@ function applyFilters(data, filters) {
 
 // Processes to apply the selected filters obtain the required data
 
-function getIssuesFromData(data, issuesFilters) { // Filter de data by Issues
+function getStudentsFromData(data, issuesFilters) { // Filter de data by Issues
   var copyIssues = {};
-  let issueKeys = Object.keys(data);
+  let observationKeys = Object.keys(data);
   if (issuesFilters.length == 0) {
     console.log("No hay filtro ");
   } else {
@@ -352,32 +352,32 @@ function getIssuesFromData(data, issuesFilters) { // Filter de data by Issues
   return copyIssues;
 }
 
-function getIssueTypeData(data, kindfilters) {
-  var copyIssueType = {};
-  let issueKeys = Object.keys(data);
-  for (var i in issueKeys) {
-    let issue = data[issueKeys[i]];
-    let issueCopy = copyIssueType[issueKeys[i]] = {};
+function getStudentTypeData(data, kindfilters) {
+  var copyKindObservation = {};
+  let observationKeys = Object.keys(data);
+  for (var i in observationKeys) {
+    let issue = data[observationKeys[i]];
+    let issueCopy = copyKindObservation[observationKeys[i]] = {};
     for (var i in kindfilters) {
       let kindfilt = kindfilters[i];
       if (issue.hasOwnProperty(kindfilt)) {
         issueCopy[kindfilt] = issue[kindfilt];
       } else {
-        alert("No data found for the Selected filter configuration");
+        alert("Some the students present in the filter do not contain information");
       }
     }
   }
-  return copyIssueType;
+  return copyKindObservation;
 }
 
 function getSessionsData(data, sessionFilters) { // Filter de data by Sessions
   var copySessions = {};
 
-  let issueKeys = Object.keys(data);
-  for (var i in issueKeys) { // iterate issues
-    let issue = data[issueKeys[i]];
-    let issueCopy = copySessions[issueKeys[i]] = {};
-    typeKeys = Object.keys(data[issueKeys[i]]);
+  let observationKeys = Object.keys(data);
+  for (var i in observationKeys) { // iterate issues
+    let issue = data[observationKeys[i]];
+    let issueCopy = copySessions[observationKeys[i]] = {};
+    typeKeys = Object.keys(data[observationKeys[i]]);
     for (var i in typeKeys) {
       let type = issue[typeKeys[i]];
       var typeCopy = issueCopy[typeKeys[i]] = {};
@@ -402,22 +402,20 @@ $(document).ready(function() {
   //------------------------------------------------------
   //  EVENTS
   //------------------------------------------------------
-  $('#student').change(function() {
+  $('#issue').change(function() {
     filters = {};
-    selected_student = $(this).val() !== "" ? $(this).val() : null;
+    selected_issue = $(this).val() !== "" ? $(this).val() : null;
     $('#session').prop('disabled', true); // Disabled sessions list when the user change the Student Selected
-    $('#issues-list').prop('disabled', true); // Disabled isues list when the user change the Student Selected
-    if (selected_student) {
-      getStudentsIssues(selected_student, function(_data) {
-        raw_issues_by_student = _data;
-        studentIssues = _data;
-        if (Object.keys(raw_issues_by_student)[0] == "Error") {
+    $('#students-list').prop('disabled', true); // Disabled isues list when the user change the Student Selected
+    if (selected_issue) {
+      getIssuesStudents(selected_issue, function(_data) {
+        raw_student_by_issue = _data;
+        issueStudents = _data;
+        if (Object.keys(raw_student_by_issue)[0] == "Error") {
           alert("No Data has been found for the Student Selected");
           renderEmptyFilters();
         } else {
-          buildFilters(raw_issues_by_student);
-
-        }
+          buildFilters(raw_student_by_issue);        }
       });
     }
   });
@@ -429,7 +427,7 @@ $(document).ready(function() {
     enableFiltering: true
   });
 
-  $('#issues-list').multiselect({
+  $('#students-list').multiselect({
     maxHeight: 400,
     buttonWidth: '100%',
     includeSelectAllOption: true,
